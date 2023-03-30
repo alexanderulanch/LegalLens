@@ -8,7 +8,7 @@ import json
 model_engine = "text-embedding-ada-002"
 
 
-def generate_matches(query, api_key="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"):
+def generate_matches(query, api_key="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"):
     openai.api_key = api_key
     query_embedding = openai.Embedding.create(
         input=query,
@@ -16,7 +16,7 @@ def generate_matches(query, api_key="sk-tx9MK7MtyMGvVQn2qlYdT3BlbkFJ6OmpIRyMXOal
     )
     query_embedding_json = query_embedding.to_dict()
     query_embedding = np.array(query_embedding_json['data'][0]['embedding'])
-    data = np.load('/content/jurisdiction_data_embeddings.npz',
+    data = np.load('jurisdiction_data_embeddings.npz',
                    allow_pickle=True)
     embeddings = data['embeddings']
 
