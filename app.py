@@ -9,61 +9,70 @@ model_engine = "text-embedding-ada-002"
 
 
 def generate_matches(query, api_key="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"):
-    openai.api_key = api_key
-    query_embedding = openai.Embedding.create(
-        input=query,
-        model=model_engine
-    )
-    query_embedding_json = query_embedding.to_dict()
-    query_embedding = np.array(query_embedding_json['data'][0]['embedding'])
-    data = np.load('jurisdiction_data_embeddings.npz',
-                   allow_pickle=True)
-    embeddings = data['embeddings']
+    try:
+        openai.api_key = api_key
+        query_embedding = openai.Embedding.create(
+            input=query,
+            model=model_engine
+        )
 
-    jurisdiction_data = pd.DataFrame({
-        'url': data['urls'],
-        'title': data['titles'],
-        'subtitle': data['subtitles'],
-        'content': data['contents']
-    })
+        query_embedding_json = query_embedding.to_dict()
+        query_embedding = np.array(
+            query_embedding_json['data'][0]['embedding'])
+        data = np.load('jurisdiction_data_embeddings.npz', allow_pickle=True)
+        embeddings = data['embeddings']
 
-    distances = cdist(query_embedding.reshape(1, -1),
-                      embeddings, metric='cosine')[0]
-    indices = np.argsort(distances)[:3]
-    top_matches = jurisdiction_data.iloc[indices].to_dict('records')
+        jurisdiction_data = pd.DataFrame({
+            'url': data['urls'],
+            'title': data['titles'],
+            'subtitle': data['subtitles'],
+            'content': data['contents']
+        })
 
-    role = '''
-      You are an AI-powered legal assistant specializing in the jurisdiction of
-      Boulder County, Colorado. Your expertise lies in providing accurate and timely
-      information on the laws and regulations specific to Boulder.
+        distances = cdist(query_embedding.reshape(1, -1),
+                          embeddings, metric='cosine')[0]
+        indices = np.argsort(distances)[:3]
+        top_matches = jurisdiction_data.iloc[indices].to_dict('records')
 
-      Your role is to assist law enforcement officers in understanding and applying
-      legal standards within this jurisdiction. You are knowledgeable, precise, and
-      always ready to offer guidance on legal matters pertaining to Boulder, Colorado.
-      '''
+        role = '''
+          You are an AI-powered legal assistant specializing in the jurisdiction of
+          Boulder County, Colorado. Your expertise lies in providing accurate and timely
+          information on the laws and regulations specific to Boulder.
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": role.strip()},
-            {"role": "system", "content": str(top_matches)},
-            {"role": "user", "content": query},
-            {"role": "assistant", "content": ""},
-        ],
-        temperature=0.7,
-        max_tokens=120,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    message = response["choices"][0]["message"]["content"].strip()
-    html_response = "<p><strong>Response:</strong></p><p>" + message + "</p>"
-    html_references = "<p><strong>References:</strong></p><ul>"
-    for match in top_matches:
-        html_references += f'<li><a href="{match["url"]}">{match["title"]}: {match["subtitle"]}</a></li>'
-    html_references += "</ul>"
+          Your role is to assist law enforcement officers in understanding and applying
+          legal standards within this jurisdiction. You are knowledgeable, precise, and
+          always ready to offer guidance on legal matters pertaining to Boulder, Colorado.
+          '''
 
-    return html_response + html_references
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": role.strip()},
+                {"role": "system", "content": str(top_matches)},
+                {"role": "user", "content": query},
+                {"role": "assistant", "content": ""},
+            ],
+            temperature=0.7,
+            max_tokens=120,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        message = response["choices"][0]["message"]["content"].strip()
+        html_response = "<p><strong>Response:</strong></p><p>" + message + "</p>"
+        html_references = "<p><strong>References:</strong></p><ul>"
+        for match in top_matches:
+            html_references += f'<li><a href="{match["url"]}">{match["title"]}: {match["subtitle"]}</a></li>'
+        html_references += "</ul>"
+
+        return html_response + html_references
+
+    except:
+        html_message = '''<p style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+    <strong>Notice:</strong> The OpenAI API key is either invalid or does not have access to GPT-4. To create a valid API key, please visit the following link: 
+    <a href="https://platform.openai.com/account/api-keys" target="_blank">https://platform.openai.com/account/api-keys</a>
+</p>'''
+        return f"<p>{html_message}</p>"
 
 
 description = "LawLens Boulder County is an AI-powered legal research app specifically for law enforcement officers in Boulder County, Colorado. With quick access to accurate information, officers can stay informed and confident while on the job. This demo is meant to serve as a proof of concept."
