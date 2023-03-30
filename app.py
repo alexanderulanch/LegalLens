@@ -88,4 +88,4 @@ iface = gr.Interface(title="LawLens Boulder County Demo", description=descriptio
     ["What are the legal standards for using a taser during an arrest?"]
 ])
 
-iface.launch(debug=True)
+iface.launch()
