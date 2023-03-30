@@ -8,7 +8,7 @@ import json
 model_engine = "text-embedding-ada-002"
 
 
-def generate_matches(query, api_key):
+def generate_matches(query, api_key="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"):
     openai.api_key = api_key
     query_embedding = openai.Embedding.create(
         input=query,
