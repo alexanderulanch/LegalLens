@@ -10,14 +10,15 @@ openai.api_key = "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"
 model_engine = "text-embedding-ada-002"
 
 
-def generate_matches(query):
+def generate_matches(query, api_key):
+    openai.api_key = api_key
     query_embedding = openai.Embedding.create(
         input=query,
         model=model_engine
     )
     query_embedding_json = query_embedding.to_dict()
     query_embedding = np.array(query_embedding_json['data'][0]['embedding'])
-    data = np.load('jurisdiction_data_embeddings.npz',
+    data = np.load('/content/jurisdiction_data_embeddings.npz',
                    allow_pickle=True)
     embeddings = data['embeddings']
 
@@ -67,15 +68,17 @@ def generate_matches(query):
     return html_response + html_references
 
 
-iface = gr.Interface(title="LawLens Boulder County Demo", fn=generate_matches, inputs="textbox", outputs=["html"], description="LawLens Boulder County is an AI-powered legal research app specifically for law enforcement officers in Boulder County, Colorado. With quick access to accurate information, officers can stay informed and confident while on the job. This demo is meant to serve as a proof of concept.", examples=[["Can I conduct a search of a vehicle if I smell marijuana coming from the car?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["What are the requirements for conducting a traffic stop in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["Under what circumstances can I perform a warrantless arrest in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["What are the guidelines for using force in self-defense as a law enforcement officer in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["Can a person openly carry a firearm in public spaces in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["When is it permissible to use a taser during an arrest in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["What constitutes probable cause for a search in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ["What are the protocols for handling domestic violence situations in this jurisdiction?"],
-                                                                                                                                                                                                                                                                                                                                                                                                                                       ])
+description = "LawLens Boulder County is an AI-powered legal research app specifically for law enforcement officers in Boulder County, Colorado. With quick access to accurate information, officers can stay informed and confident while on the job. This demo is meant to serve as a proof of concept."
+
+iface = gr.Interface(title="LawLens Boulder County Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[["Can I conduct a search of a vehicle if I smell marijuana coming from the car?"],
+                                                                                                                                                                                                                                                     ["What are the requirements for conducting a traffic stop in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ["Under what circumstances can I perform a warrantless arrest in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ["What are the guidelines for using force in self-defense as a law enforcement officer in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ["Can a person openly carry a firearm in public spaces in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ["When is it permissible to use a taser during an arrest in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ["What constitutes probable cause for a search in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ["What are the protocols for handling domestic violence situations in this jurisdiction?"],
+                                                                                                                                                                                                                                                     ])
 
 
 iface.launch(debug=True)
