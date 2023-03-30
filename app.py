@@ -17,7 +17,7 @@ def generate_matches(query):
     )
     query_embedding_json = query_embedding.to_dict()
     query_embedding = np.array(query_embedding_json['data'][0]['embedding'])
-    data = np.load('/content/jurisdiction_data_embeddings.npz',
+    data = np.load('jurisdiction_data_embeddings.npz',
                    allow_pickle=True)
     embeddings = data['embeddings']
 
