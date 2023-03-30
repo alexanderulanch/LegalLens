@@ -5,8 +5,6 @@ import openai
 import gradio as gr
 import json
 
-openai.api_key = "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"
-
 model_engine = "text-embedding-ada-002"
 
 
