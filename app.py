@@ -8,7 +8,7 @@ import json
 model_engine = "text-embedding-ada-002"
 
 
-def generate_matches(query, api_key="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"):
+def generate_matches(query, location, api_key="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"):
     try:
         openai.api_key = api_key
         query_embedding = openai.Embedding.create(
@@ -35,13 +35,13 @@ def generate_matches(query, api_key="sk-MD70jf0X8URg3PRF1rv9T3BlbkFJcj7quwK7vhq8
         top_matches = jurisdiction_data.iloc[indices].to_dict('records')
 
         role = '''
-          You are an AI-powered legal assistant specializing in the jurisdiction of
-          Boulder County, Colorado. Your expertise lies in providing accurate and timely
-          information on the laws and regulations specific to Boulder.
+          You are an AI-powered legal assistant specializing in the jurisdiction of Boulder County, Colorado. 
+          Your expertise lies in providing accurate and timely information on the laws and regulations specific to Boulder.
 
-          Your role is to assist law enforcement officers in understanding and applying
-          legal standards within this jurisdiction. You are knowledgeable, precise, and
-          always ready to offer guidance on legal matters pertaining to Boulder, Colorado.
+          Your role is to assist individuals, including law enforcement officers, legal professionals, and the general public, 
+          in understanding and applying legal standards within this jurisdiction. You are knowledgeable, precise, and always 
+          ready to offer guidance on legal matters pertaining to Boulder, Colorado. Your max_tokens is set to 120 so keep your
+          response below that.
           '''
 
         response = openai.ChatCompletion.create(
@@ -72,20 +72,20 @@ def generate_matches(query, api_key="sk-MD70jf0X8URg3PRF1rv9T3BlbkFJcj7quwK7vhq8
     <strong>Notice:</strong> The OpenAI API key is either invalid or does not have access to GPT-4. To create a valid API key, please visit the following link: 
     <a href="https://platform.openai.com/account/api-keys" target="_blank">https://platform.openai.com/account/api-keys</a>
 </p>'''
-        return f"<p>{html_message}</p>"
+        return f"<p>{html_message} {api_key}</p>"
 
 
-description = "LawLens Boulder County is an AI-powered legal research app specifically for law enforcement officers in Boulder County, Colorado. With quick access to accurate information, officers can stay informed and confident while on the job. This demo is meant to serve as a proof of concept."
+description = "LegalLens is an AI-powered legal research app designed to assist individuals, including law enforcement officers, legal professionals, and the general public, in accessing accurate legal information. The app covers various jurisdictions and ensures that users can stay informed and confident, regardless of their location. This demo is meant to serve as a proof of concept."
 
-iface = gr.Interface(title="LawLens Boulder County Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
+iface = gr.Interface(title="LegalLens Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Dropdown(choices=["Boulder County, Colorado", "San Francisco, California"], label="Location"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
     ["What resources are available to support individuals in a mental health crisis?"],
-    ["What protocols should be followed when handling evidence in a criminal case?"],
-    ["What training is required to ensure traffic stops are conducted in compliance with local regulations?"],
-    ["What legal procedures must be followed when conducting a search of a suspect's property?"],
-    ["How can I use force in a way that is compliant with legal standards and promotes safety in Boulder?"],
-    ["What are the guidelines for responding to domestic violence situations?"],
-    ["How can I ensure that I am in compliance with local regulations while carrying out my duties as a law enforcement officer?"],
-    ["What are the legal standards for using a taser during an arrest?"]
+    ["What are the regulations for noise levels in residential areas?"],
+    ["What are the parking restrictions in downtown areas?"],
+    ["How can I appeal a parking ticket?"],
+    ["What are the requirements for obtaining a business license?"],
+    ["What are the guidelines for recycling and waste disposal?"],
+    ["How can I report a pothole or damaged road?"],
+    ["What are the regulations for leash laws and pet ownership?"]
 ])
 
-iface.launch()
+iface.launch(debug=True)
