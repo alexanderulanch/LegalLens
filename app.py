@@ -7,8 +7,20 @@ import json
 
 model_engine = "text-embedding-ada-002"
 
+# Create a dictionary that maps each location to its corresponding .npz file and role description
+location_info = {
+    "Boulder": {
+        "npz_file": "embeddings/boulder_embeddings.npz",
+        "role_description": "You are an AI-powered legal assistant specializing in the jurisdiction of Boulder County, Colorado."
+    },
+    "Denver": {
+        "npz_file": "embeddings/denver_embeddings.npz",
+        "role_description": "You are an AI-powered legal assistant specializing in the jurisdiction of Denver, Colorado."
+    }
+}
 
-def generate_matches(query, location, api_key="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"):
+
+def generate_matches(query, county, api_key="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"):
     try:
         openai.api_key = api_key
         query_embedding = openai.Embedding.create(
@@ -19,7 +31,16 @@ def generate_matches(query, location, api_key="sk-jMdZy5n8CHl6VDgZXiwQT3BlbkFJm0
         query_embedding_json = query_embedding.to_dict()
         query_embedding = np.array(
             query_embedding_json['data'][0]['embedding'])
-        data = np.load('jurisdiction_data_embeddings.npz', allow_pickle=True)
+
+        # Determine the .npz file and role description to use based on the user-selected location
+        location_data = location_info.get(county)
+        if not location_data:
+            raise Exception(f"No data found for location '{county}'.")
+
+        npz_file = location_data['npz_file']
+        role_description = location_data['role_description']
+
+        data = np.load(npz_file, allow_pickle=True)
         embeddings = data['embeddings']
 
         jurisdiction_data = pd.DataFrame({
@@ -34,13 +55,13 @@ def generate_matches(query, location, api_key="sk-jMdZy5n8CHl6VDgZXiwQT3BlbkFJm0
         indices = np.argsort(distances)[:3]
         top_matches = jurisdiction_data.iloc[indices].to_dict('records')
 
-        role = '''
-          You are an AI-powered legal assistant specializing in the jurisdiction of Boulder County, Colorado. 
-          Your expertise lies in providing accurate and timely information on the laws and regulations specific to Boulder.
+        role = f'''
+          {role_description} 
+          Your expertise lies in providing accurate and timely information on the laws and regulations specific to your jurisdiction.
 
           Your role is to assist individuals, including law enforcement officers, legal professionals, and the general public, 
           in understanding and applying legal standards within this jurisdiction. You are knowledgeable, precise, and always 
-          ready to offer guidance on legal matters pertaining to Boulder, Colorado. Your max_tokens is set to 120 so keep your
+          ready to offer guidance on legal matters. Your max_tokens is set to 120 so keep your
           response below that.
           '''
 
@@ -67,17 +88,16 @@ def generate_matches(query, location, api_key="sk-jMdZy5n8CHl6VDgZXiwQT3BlbkFJm0
 
         return html_response + html_references
 
-    except:
+    except Exception as e:
         html_message = '''<p style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
-    <strong>Notice:</strong> The OpenAI API key is either invalid or does not have access to GPT-4. To create a valid API key, please visit the following link: 
-    <a href="https://platform.openai.com/account/api-keys" target="_blank">https://platform.openai.com/account/api-keys</a>
+    <strong>Notice:</strong> An error occurred while processing your request. Please see the details below:
 </p>'''
-        return f"<p>{html_message} {api_key}</p>"
+        return f"<p>{html_message} {str(e)}</p>"
 
 
 description = "LegalLens is an AI-powered legal research app designed to assist individuals, including law enforcement officers, legal professionals, and the general public, in accessing accurate legal information. The app covers various jurisdictions and ensures that users can stay informed and confident, regardless of their location. This demo is meant to serve as a proof of concept."
 
-iface = gr.Interface(title="LegalLens Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Dropdown(choices=["Boulder County, Colorado", "San Francisco, California"], label="Location"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
+iface = gr.Interface(title="LegalLens Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Dropdown(choices=["Boulder", "Denver"], label="County"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
     ["What resources are available to support individuals in a mental health crisis?"],
     ["What are the regulations for noise levels in residential areas?"],
     ["What are the parking restrictions in downtown areas?"],
