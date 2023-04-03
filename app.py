@@ -97,7 +97,7 @@ def generate_matches(query, location, api_key="sk-jMdZy5n8CHl6VDgZXiwQT3BlbkFJm0
 
 description = "LegalLens is an AI-powered legal research app designed to assist individuals, including law enforcement officers, legal professionals, and the general public, in accessing accurate legal information. The app covers various jurisdictions and ensures that users can stay informed and confident, regardless of their location. This demo is meant to serve as a proof of concept."
 
-iface = gr.Interface(title="LegalLens Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Dropdown(choices=["Boulder", "Denver"], label="County"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
+iface = gr.Interface(title="LegalLens Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Dropdown(choices=["Boulder", "Denver"], label="Location"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
     ["Is it legal for me to use rocks to construct a cairn in an outdoor area?", "Boulder"],
     ["Is it legal to possess a dog and take ownership of it as a pet in Boulder?", "Boulder"],
     ["As per the local laws, am I allowed to expose my upper body and go without a shirt in public places?", "Boulder"],
@@ -106,4 +106,4 @@ iface = gr.Interface(title="LegalLens Demo", description=description, fn=generat
     ["Can I legally graze my llamma on public land?", "Boulder"]
 ])
 
-iface.launch(debug=True)
+iface.launch()
