@@ -20,7 +20,7 @@ location_info = {
 }
 
 
-def generate_matches(query, location="Boulder", api_key="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"):
+def generate_matches(query, location, api_key="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"):
     try:
         openai.api_key = api_key
         query_embedding = openai.Embedding.create(
@@ -98,12 +98,12 @@ def generate_matches(query, location="Boulder", api_key="sk-jMdZy5n8CHl6VDgZXiwQ
 description = "LegalLens is an AI-powered legal research app designed to assist individuals, including law enforcement officers, legal professionals, and the general public, in accessing accurate legal information. The app covers various jurisdictions and ensures that users can stay informed and confident, regardless of their location. This demo is meant to serve as a proof of concept."
 
 iface = gr.Interface(title="LegalLens Demo", description=description, fn=generate_matches, inputs=[gr.Textbox(label="Query"), gr.Dropdown(choices=["Boulder", "Denver"], label="County"), gr.Textbox(label="OpenAI API key", placeholder="must have access to GPT-4")], outputs=["html"], examples=[
-    ["Is it legal for me to use rocks to construct a cairn in an outdoor area?"],
-    ["Is it legal to possess a dog and take ownership of it as a pet in Boulder?"],
-    ["As per the local laws, am I allowed to expose my upper body and go without a shirt in public places?"],
-    ["What are the legal restrictions regarding the maximum height of a building that can be constructed in a particular area?"],
-    ["Is it legal to place a couch on my porch according to the local regulations?"],
-    ["Can I legally graze my llamma on public land?"]
+    ["Is it legal for me to use rocks to construct a cairn in an outdoor area?", "Boulder"],
+    ["Is it legal to possess a dog and take ownership of it as a pet in Boulder?", "Boulder"],
+    ["As per the local laws, am I allowed to expose my upper body and go without a shirt in public places?", "Boulder"],
+    ["What are the legal restrictions regarding the maximum height of a building that can be constructed in a particular area?", "Boulder"],
+    ["Is it legal to place a couch on my porch according to the local regulations?", "Boulder"],
+    ["Can I legally graze my llamma on public land?", "Boulder"]
 ])
 
 iface.launch(debug=True)
