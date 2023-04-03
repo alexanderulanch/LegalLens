@@ -20,7 +20,7 @@ location_info = {
 }
 
 
-def generate_matches(query, county, api_key="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"):
+def generate_matches(query, location="Boulder", api_key="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"):
     try:
         openai.api_key = api_key
         query_embedding = openai.Embedding.create(
@@ -33,9 +33,9 @@ def generate_matches(query, county, api_key="sk-jMdZy5n8CHl6VDgZXiwQT3BlbkFJm0XX
             query_embedding_json['data'][0]['embedding'])
 
         # Determine the .npz file and role description to use based on the user-selected location
-        location_data = location_info.get(county)
+        location_data = location_info.get(location)
         if not location_data:
-            raise Exception(f"No data found for location '{county}'.")
+            raise Exception(f"No data found for location '{location}'.")
 
         npz_file = location_data['npz_file']
         role_description = location_data['role_description']
@@ -66,7 +66,7 @@ def generate_matches(query, county, api_key="sk-jMdZy5n8CHl6VDgZXiwQT3BlbkFJm0XX
           '''
 
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5",
             messages=[
                 {"role": "system", "content": role.strip()},
                 {"role": "system", "content": str(top_matches)},
