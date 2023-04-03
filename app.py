@@ -66,7 +66,7 @@ def generate_matches(query, location="Boulder", api_key="sk-jMdZy5n8CHl6VDgZXiwQ
           '''
 
         response = openai.ChatCompletion.create(
-            model="gpt-3.5",
+            model="gpt-3",
             messages=[
                 {"role": "system", "content": role.strip()},
                 {"role": "system", "content": str(top_matches)},
