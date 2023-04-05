@@ -3,11 +3,9 @@ import numpy as np
 from scipy.spatial.distance import cdist
 import openai
 import gradio as gr
-import json
 
 model_engine = "text-embedding-ada-002"
 
-# Create a dictionary that maps each location to its corresponding .npz file and role description
 location_info = {
     "Boulder": {
         "npz_file": "embeddings/boulder_embeddings.npz",
@@ -20,7 +18,32 @@ location_info = {
 }
 
 
-def generate_matches(query, location, api_key="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"):
+def generate_matches(query, location, api_key):
+    """
+    Generate legal information matches based on the user's query and location.
+
+    This function uses OpenAI's GPT-4 and text-embedding models to generate
+    legal information matches for a given query and location. The function
+    returns an HTML response containing the AI-generated response and references
+    to relevant legal information.
+
+    Parameters
+    ----------
+    query : str
+        The user's query for legal information.
+    location : str
+        The location for which the user is seeking legal information.
+        Possible values are "Boulder" and "Denver".
+    api_key : str
+        The OpenAI API key required to access the GPT-4 and text-embedding models.
+
+    Returns
+    -------
+    str
+        An HTML response containing the AI-generated response and references
+        to relevant legal information. In case of an error, an error message
+        is returned in HTML format.
+    """
     try:
         openai.api_key = api_key
         query_embedding = openai.Embedding.create(
